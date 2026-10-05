@@ -39,7 +39,8 @@ import gemeinsam as g  # noqa: E402
 FOLIE = re.compile(r"^## Folie (\d+)[^\n]*?(?:\(~(\d+)\s*min\))?\s*$", re.M)
 WORT = re.compile(r"\b[\wäöüÄÖÜß-]+\b")
 META = ("Sprechnotiz:", "Demo:", "Jetzt du:", "**Form:**", "**Skizze:**",
-        "Handout:", "**Sprechnotiz", "**Demo", "**Jetzt du", "**Handout")
+        "Handout:", "Grafik:", "**Sprechnotiz", "**Demo", "**Jetzt du",
+        "**Handout", "**Grafik")
 
 
 def folien_teilen(text: str) -> list[tuple[int, int | None, str]]:
