@@ -23,6 +23,9 @@ def main():
         sys.exit(0)
     pfad_roh = (daten.get("tool_input") or {}).get("file_path") or ""
     teile = Path(pfad_roh).as_posix()
+    if "/pruefberichte/" in teile:
+        # Prüfberichte unter decks/pruefberichte/ sind keine Decks.
+        sys.exit(0)
     if "/praesentationen/decks/" not in teile and not teile.startswith("praesentationen/decks/"):
         sys.exit(0)
     pfad = Path(pfad_roh)
