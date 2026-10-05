@@ -1,0 +1,11 @@
+{
+  "name": "folien-kit-marketplace",
+  "owner": { "name": "ceichmueller" },
+  "plugins": [
+    {
+      "name": "folien-kit",
+      "source": ".",
+      "description": "Agenten-Pipeline für Dünn-Decks aus belegten Handouts: harte Leinwand-Budgets per Gate und Hooks, Belegkette Leinwand→Handout→Claim, Trainer-Probelauf, Publikums-Lesung, Eval-Schicht."
+    }
+  ]
+}
