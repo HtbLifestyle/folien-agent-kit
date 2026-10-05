@@ -4,6 +4,7 @@ description: "Hält einen Foliensatz probehalber als Trainer ab und meldet jede 
 tools: Read, Grep, Glob
 disallowedTools: Write, Edit, NotebookEdit, Bash, WebFetch, WebSearch
 model: opus
+memory: project
 maxTurns: 25
 color: orange
 ---

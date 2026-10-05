@@ -16,6 +16,11 @@ Geprüft wird nur Mechanisches (P-04):
         davor auf derselben Folie eine `Beispiel:`-Zeile stehen.
   F-06  Leinwandzeit: Summe der `(~n min)`-Angaben der Folientitel gegen
         die Kopfzeile `Leinwandzeit: <n> min`.
+  F-07  Abdeckung: liegt neben dem Deck eine SPEZIFIKATION-<name>.md mit
+        `MUSS:`-Zeilen (`MUSS: <schlagwort> — Handout: <anker> — <n> min`),
+        muss jedes Schlagwort im Deck vorkommen — außer die Zeile trägt
+        `GESTRICHEN (<grund>)`. Ein abgenommenes Deck ohne einen MUSS-Punkt
+        war der einzige stille Durchrutscher des Pilotlaufs.
 
 Exit 0 ohne Befund, 1 mit Befunden. Schreibt gates/folien-report.md,
 wenn das Deck in einem Dokumentprojekt liegt.
@@ -125,6 +130,22 @@ def pruefen(datei: Path) -> list[dict]:
     else:
         befund("F-06", 1, "Kopfzeile `Leinwandzeit: <n> min` fehlt")
 
+    # F-07: Abdeckung gegen die Spezifikation
+    name = re.sub(r"^T?", "", datei.stem.split("-")[0]) or datei.stem
+    spez = datei.parent / f"SPEZIFIKATION-{datei.stem.split('-')[0]}.md"
+    if spez.exists():
+        stext = spez.read_text(encoding="utf-8", errors="replace")
+        tlow = text.lower()
+        for sm in re.finditer(r"^MUSS:\s*([^—\n]+?)\s*(?:—|$)", stext, re.M):
+            zeile_voll = stext[sm.start():stext.find("\n", sm.start())]
+            if "GESTRICHEN" in zeile_voll:
+                continue
+            schlagwort = sm.group(1).strip()
+            if schlagwort.lower() not in tlow:
+                befund("F-07", 1,
+                       f"MUSS-Punkt \u201e{schlagwort}\u201c aus {spez.name} kommt "
+                       "im Deck nicht vor (und ist nicht als GESTRICHEN begründet)")
+
     return b
 
 
@@ -132,6 +153,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("dateien", nargs="+")
     ap.add_argument("--still", action="store_true")
+    ap.add_argument("--ausloeser", default="lauf", help="hook | lauf — fürs Protokoll")
     a = ap.parse_args()
 
     dateien = [Path(d) for d in a.dateien if Path(d).exists()]
@@ -146,9 +168,15 @@ def main():
         nach_regel: dict[str, int] = {}
         for x in befunde:
             nach_regel[x["regel"]] = nach_regel.get(x["regel"], 0) + 1
+        details = {}
+        for d in dateien:
+            txt = d.read_text(encoding="utf-8", errors="replace")
+            fol = folien_teilen(txt)
+            details[d.name] = {"folien": len(fol),
+                               "minuten": sum(mi for _, mi, _ in fol if mi)}
         g.spur(w, "gate", werkzeug="folien_pruefen",
                dateien=[d.name for d in dateien], befunde=len(befunde),
-               nach_regel=nach_regel, ausloeser="lauf")
+               nach_regel=nach_regel, details=details, ausloeser=a.ausloeser)
 
     if not a.still:
         print(f"{len(dateien)} Decks, {len(befunde)} Befunde")

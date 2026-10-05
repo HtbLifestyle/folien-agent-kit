@@ -58,8 +58,8 @@ Regel: Erst die Regel, Beispiel vergessen.
 """
 
 ERWARTUNGEN = [
-    ("gut: Exit 0", lambda r: r["gut"].returncode == 0),
-    ("gut: keine Befunde", lambda r: "0 Befunde" in r["gut"].stdout),
+    ("gut: genau der eine F-07", lambda r: r["gut"].returncode == 1 and r["gut"].stdout.count("F-07") == 1),
+    ("gut: sonst keine Befunde", lambda r: "1 Befunde" in r["gut"].stdout),
     ("schlecht: Exit 1", lambda r: r["schlecht"].returncode == 1),
     ("schlecht: F-01 Budget", lambda r: "F-01" in r["schlecht"].stdout),
     ("schlecht: F-02 Wörter", lambda r: "F-02" in r["schlecht"].stdout),
@@ -69,15 +69,25 @@ ERWARTUNGEN = [
     ("schlecht: F-06 Leinwandzeit fehlt", lambda r: "F-06" in r["schlecht"].stdout),
     ("gut: Meta-Zeilen zählen nicht (sonst F-02)", lambda r: "F-02" not in r["gut"].stdout),
     ("gut: Codezaun zählt nicht", lambda r: "Folie 1" not in r["gut"].stdout),
-    ("gut: umbrochene Sprechnotiz zählt nicht", lambda r: r["gut"].returncode == 0),
+    ("gut: umbrochene Sprechnotiz zählt nicht", lambda r: "F-02" not in r["gut"].stdout),
+    ("F-07: fehlender MUSS-Punkt gemeldet", lambda r: "F-07" in r["gut"].stdout and "Verschwundener Punkt" in r["gut"].stdout),
+    ("F-07: gedeckter MUSS-Punkt still", lambda r: "Beispiel trägt" not in r["gut"].stdout),
+    ("F-07: GESTRICHEN wird übersprungen", lambda r: "Alte Idee" not in r["gut"].stdout),
 ]
 
 
 def main():
+    SPEZ = (
+        "# Spez\n"
+        "MUSS: Beispiel trägt — Handout: M1 F2 — 5 min\n"
+        "MUSS: Verschwundener Punkt — Handout: M1 F6 — 2 min\n"
+        "MUSS: Alte Idee — Handout: M1 F9 — 2 min — GESTRICHEN (Prüfer-Entscheid)\n"
+    )
     with tempfile.TemporaryDirectory() as td:
         d = Path(td)
         (d / "gut.md").write_text(GUT, encoding="utf-8")
         (d / "schlecht.md").write_text(SCHLECHT, encoding="utf-8")
+        (d / "SPEZIFIKATION-gut.md").write_text(SPEZ, encoding="utf-8")
         r = {
             name: subprocess.run([sys.executable, str(GATE), str(d / f"{name}.md")],
                                  capture_output=True, text=True)

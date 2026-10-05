@@ -29,7 +29,7 @@ def main():
     if not pfad.exists() or not WERKZEUG.exists():
         sys.exit(0)
     try:
-        lauf = subprocess.run([sys.executable, str(WERKZEUG), str(pfad)],
+        lauf = subprocess.run([sys.executable, str(WERKZEUG), str(pfad), "--ausloeser", "hook"],
                               capture_output=True, text=True, timeout=25,
                               cwd=daten.get("cwd") or None)
     except Exception:

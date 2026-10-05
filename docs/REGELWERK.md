@@ -21,6 +21,10 @@ zusätzlich der PreToolUse-Hook `guard-leinwand` beim Schreiben.
   `(~n min)`-Angaben darf sie nicht reißen. Richtwert: ≤ 25–30 min je
   90-Minuten-Session — der Rest ist Arbeit der Teilnehmer.
 
+- **F-07** Abdeckung: jede `MUSS:`-Zeile der zugehörigen
+  SPEZIFIKATION-<name>.md muss als Schlagwort im Deck vorkommen oder in der
+  Spezifikation als `GESTRICHEN (<grund>)` begründet sein.
+
 ## Darstellungs-Regeln (geprüft von Agenten, D)
 
 - **D-01** Jede Folie trägt `**Form:** <Typ>` aus dem Vokabular (Kernsatz ·
