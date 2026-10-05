@@ -36,6 +36,19 @@ zusätzlich der PreToolUse-Hook `guard-leinwand` beim Schreiben.
 - **D-04** Spätestens jede dritte Folie ist aktiv (Demo oder Jetzt du);
   bewusste Ausnahmen stehen als ⚠-Zeile im Dramaturgie-Block.
 
+## Short-Paper-Regeln (maschinell, SP)
+
+Das Paper ist die dritte Schicht: Leinwand (Deck) → **Spickzettel (Paper)**
+→ Tiefe (Handout-Modul). Gate: `tools/papier_pruefen.py`.
+
+- **SP-01** Wortbudget-Kopfzeile, Richtwert 900 Wörter Fließtext.
+- **SP-02** Pflichtstruktur: Was du jetzt kannst · Die Handgriffe ·
+  Wenn es klemmt · Vertiefung — in dieser Reihenfolge.
+- **SP-03** Jeder Handgriff trägt Kasten, Bild, Mermaid oder Screenshot-Marke.
+- **SP-04** Keine Fußnoten im Paper; Belege nur als Verweise im
+  Vertiefungs-Block (die Belegkette läuft Paper → Handout → Claim).
+- **SP-05** „Was du jetzt kannst" hat höchstens 3 Sätze.
+
 ## Rollen-Regeln (FP)
 
 - **FP-01** Die Skill entscheidet, Agenten liefern. Spezifikation, Gate-Läufe
