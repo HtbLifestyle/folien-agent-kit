@@ -27,7 +27,9 @@ Leinwandzeit: 8 min
 Beispiel: Du sagst nur noch, was der Brief erreichen soll.
 Regel: Neu ist Hilfe an der ganzen Aufgabe.
 
-Sprechnotiz: Diese Zeile zählt nicht zu den sichtbaren Wörtern, auch wenn sie lang ist und viele Wörter enthält.
+Sprechnotiz: Diese Zeile zählt nicht zu den sichtbaren Wörtern, auch wenn sie
+lang ist, über mehrere Zeilen umbricht und dabei sehr viele Wörter enthält,
+die alle nicht auf der Leinwand stehen und darum nicht gezählt werden dürfen.
 Handout: M1, Folie 2.
 
 ```text
@@ -67,6 +69,7 @@ ERWARTUNGEN = [
     ("schlecht: F-06 Leinwandzeit fehlt", lambda r: "F-06" in r["schlecht"].stdout),
     ("gut: Meta-Zeilen zählen nicht (sonst F-02)", lambda r: "F-02" not in r["gut"].stdout),
     ("gut: Codezaun zählt nicht", lambda r: "Folie 1" not in r["gut"].stdout),
+    ("gut: umbrochene Sprechnotiz zählt nicht", lambda r: r["gut"].returncode == 0),
 ]
 
 

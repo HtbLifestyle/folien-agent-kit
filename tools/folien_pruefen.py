@@ -50,8 +50,10 @@ def folien_teilen(text: str) -> list[tuple[int, int | None, str]]:
 
 def sichtbarer_text(folie: str) -> list[str]:
     """Sichtbare Zeilen; Leerzeilen bleiben als "" erhalten, damit der
-    Blockzähler Bullet-Gruppen trennen kann."""
-    zeilen, im_zaun, out = folie.splitlines(), False, []
+    Blockzähler Bullet-Gruppen trennen kann. META-Zeilen (Sprechnotiz: usw.)
+    verschlucken auch ihre umbrochenen Folgezeilen bis zur Leerzeile —
+    der Fehlbefund des ersten Pilotlaufs (12x F-02 auf einem sauberen Deck)."""
+    zeilen, im_zaun, im_meta, out = folie.splitlines(), False, False, []
     for z in zeilen:
         s = z.strip()
         if s.startswith(("```", "~~~")):
@@ -59,7 +61,14 @@ def sichtbarer_text(folie: str) -> list[str]:
             continue
         if im_zaun or s.startswith("---"):
             continue
+        if not s:
+            im_meta = False
+            out.append(s)
+            continue
         if any(s.startswith(m) for m in META):
+            im_meta = True
+            continue
+        if im_meta:
             continue
         out.append(s)
     return out
