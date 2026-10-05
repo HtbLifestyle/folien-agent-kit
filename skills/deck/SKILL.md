@@ -23,7 +23,11 @@ Du orchestrierst, du baust nicht selbst (FP-01, FP-02).
    der Fix-Liste, fährst das Gate erneut und nimmst ab.
 6. **Protokoll.** Jeder Schritt steht im Laufprotokoll (die Werkzeuge
    schreiben selbst); Agentenläufe trägst du mit Token und Dauer nach
-   (ereignis `agentenlauf`), Blockaden meldet der Hook.
+   (ereignis `agentenlauf`), Blockaden meldet der Hook. Zusätzlich je
+   Prüfer ein Ereignis `pruefergebnis` mit `rolle`, `deck`, `befunde`,
+   `uebernommen`, `verworfen` und `verworfen_grund` (stichwortartig) —
+   ohne diese Zeile kann `evaluieren` Rauschen nicht von Ertrag trennen
+   (FP-05).
 
 Memory: trage nach dem Lauf nur protokoll-belegte Handwerksregeln in die
 Memories von folien-writer und trainer-leser ein; publikum-entwickler bleibt
