@@ -73,7 +73,47 @@ ERWARTUNGEN = [
     ("F-07: fehlender MUSS-Punkt gemeldet", lambda r: "F-07" in r["gut"].stdout and "Verschwundener Punkt" in r["gut"].stdout),
     ("F-07: gedeckter MUSS-Punkt still", lambda r: "Beispiel trägt" not in r["gut"].stdout),
     ("F-07: GESTRICHEN wird übersprungen", lambda r: "Alte Idee" not in r["gut"].stdout),
+    ("F-06: zu dünnes Deck wird gemeldet",
+     lambda r: "F-06" in r["duenn"].stdout and "zu dünn" in r["duenn"].stdout),
+    ("F-06: Prosa-Minuten zählen nicht mit",
+     lambda r: "F-06" not in r["prosa"].stdout),
 ]
+
+# Vier Decks des Programms lagen still unter ihrem Zielwert, weil F-06 nur
+# nach oben prüfte. Zielwert 60, Folien ergeben 20 — muss melden.
+DUENN = """# Testdeck dünn
+Budget: 2 Folien
+Leinwandzeit: 60 min
+
+## Folie 1: Erste (~12 min)
+
+Beispiel: Etwas.
+Regel: Etwas gilt.
+
+## Folie 2: Quellen (~8 min)
+
+- Alle Belege im Handout.
+"""
+
+# Minutenangaben in der Dramaturgie-Prosa sind keine Leinwandzeit. Eine
+# Handzählung, die sie mitnahm, erfand drei Decks eine zu lange Zeit.
+PROSA = """# Testdeck Prosa
+Budget: 2 Folien
+Leinwandzeit: 8 min
+
+## Dramaturgie
+
+- **Peak:** Folie 1 (~5 min) trägt den Kern, der Block danach (~30 min) nicht.
+
+## Folie 1: Erste (~5 min)
+
+Beispiel: Etwas.
+Regel: Etwas gilt.
+
+## Folie 2: Quellen (~3 min)
+
+- Alle Belege im Handout.
+"""
 
 
 
@@ -138,11 +178,13 @@ def main():
         d = Path(td)
         (d / "gut.md").write_text(GUT, encoding="utf-8")
         (d / "schlecht.md").write_text(SCHLECHT, encoding="utf-8")
+        (d / "duenn.md").write_text(DUENN, encoding="utf-8")
+        (d / "prosa.md").write_text(PROSA, encoding="utf-8")
         (d / "SPEZIFIKATION-gut.md").write_text(SPEZ, encoding="utf-8")
         r = {
             name: subprocess.run([sys.executable, str(GATE), str(d / f"{name}.md")],
                                  capture_output=True, text=True)
-            for name in ("gut", "schlecht")
+            for name in ("gut", "schlecht", "duenn", "prosa")
         }
     ok = 0
     for name, test in ERWARTUNGEN:

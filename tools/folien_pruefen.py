@@ -15,7 +15,10 @@ Geprüft wird nur Mechanisches (P-04):
   F-05  Beispiel vor Regel: trägt eine Folie eine `Regel:`-Zeile, muss
         davor auf derselben Folie eine `Beispiel:`-Zeile stehen.
   F-06  Leinwandzeit: Summe der `(~n min)`-Angaben der Folientitel gegen
-        die Kopfzeile `Leinwandzeit: <n> min`.
+        die Kopfzeile `Leinwandzeit: <n> min` — sie müssen gleich sein, und
+        die Summe darf die Untergrenze ZIELZEIT_UNTEN nicht unterschreiten.
+        Nur Folientitel zählen; Minutenangaben in der Dramaturgie-Prosa
+        bleiben außen vor.
   F-07  Abdeckung: liegt neben dem Deck eine SPEZIFIKATION-<name>.md mit
         `MUSS:`-Zeilen (`MUSS: <schlagwort> — Handout: <anker> — <n> min`),
         muss jedes Schlagwort im Deck vorkommen — außer die Zeile trägt
@@ -41,6 +44,14 @@ WORT = re.compile(r"\b[\wäöüÄÖÜß-]+\b")
 META = ("Sprechnotiz:", "Demo:", "Jetzt du:", "**Form:**", "**Skizze:**",
         "Handout:", "Grafik:", "**Sprechnotiz", "**Demo", "**Jetzt du",
         "**Handout", "**Grafik")
+
+# Toleranzband um die Kopfzeile `Leinwandzeit:`. Die Zahl dort ist der
+# Zielwert aus der Spezifikation, nicht eine Obergrenze: ein Deck darf etwas
+# darüber liegen und ein Stück darunter, aber eine Präsentation, die den Raum
+# nicht füllt, ist kein kurzer Erfolg, sondern eine dünne Session. Beim
+# Programmzielwert 60 ergibt das die FIXPLAN-Spanne 55 bis 70.
+TOLERANZ_UNTEN = 5
+TOLERANZ_OBEN = 10
 
 
 def folien_teilen(text: str) -> list[tuple[int, int | None, str]]:
@@ -126,8 +137,17 @@ def pruefen(datei: Path) -> list[dict]:
     if m:
         soll = int(m.group(1))
         ist = sum(mi for _, mi, _ in folien if mi)
-        if ist > soll:
-            befund("F-06", 1, f"Leinwandzeit {ist} min über Budget {soll} min")
+        if ist > soll + TOLERANZ_OBEN:
+            befund("F-06", 1,
+                   f"Leinwandzeit {ist} min über der Spanne — Zielwert {soll} min, "
+                   f"Toleranz bis {soll + TOLERANZ_OBEN} min")
+        elif ist and ist < soll - TOLERANZ_UNTEN:
+            # Die Untergrenze fehlte lange. Vier Decks des Programms lagen
+            # still 6 bis 19 min unter ihrem Zielwert, und kein Gate sah es —
+            # gemeldet hat es nur, wer die Decks von Hand nachgerechnet hat.
+            befund("F-06", 1,
+                   f"Session zu dünn: {ist} min Leinwandzeit, Zielwert {soll} min, "
+                   f"Untergrenze {soll - TOLERANZ_UNTEN} min")
     else:
         befund("F-06", 1, "Kopfzeile `Leinwandzeit: <n> min` fehlt")
 
