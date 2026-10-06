@@ -45,9 +45,9 @@ def main():
         sys.exit(0)
     pfad_roh = (daten.get("tool_input") or {}).get("file_path") or ""
     teile = Path(pfad_roh).as_posix()
-    if "/pruefberichte/" in teile:
-        # Prüfberichte liegen laut Skill unter decks/pruefberichte/ und sind
-        # keine Leinwand — sie zitieren Fußnoten, statt welche zu tragen.
+    if "/pruefberichte/" in teile or Path(teile).name.startswith("SPEZIFIKATION"):
+        # Prüfberichte und Spezifikationen liegen laut Skill unter decks/ und
+        # sind keine Leinwand — sie zitieren Belege, statt welche zu tragen.
         sys.exit(0)
     if "/praesentationen/decks/" not in teile and not teile.startswith("praesentationen/decks/"):
         sys.exit(0)

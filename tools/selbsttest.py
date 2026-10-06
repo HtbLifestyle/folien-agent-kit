@@ -76,6 +76,57 @@ ERWARTUNGEN = [
 ]
 
 
+
+PAPIER_GATE = HIER / "papier_pruefen.py"
+
+# Mermaid mit `-. label .-` erzeugte einen SP-05-Fehlalarm (Punkt plus
+# Leerzeichen wurde als Satzende gelesen). Gemessen am 2026-10-06.
+PAPIER_MERMAID = """# Testpapier
+Session: T0 · Deck: x · Handout: y
+Wortbudget: 900
+
+## Was du jetzt kannst
+
+Du kannst genau eine Sache. Und eine zweite.
+
+```mermaid
+flowchart TB
+  A[Eins] --> B([Zwei])
+  B -. leere Aussparung .- C[Drei]
+```
+
+*Eine Bildunterschrift als dritter Satz.*
+
+## Die Handgriffe
+
+1. **Ein Handgriff.**
+
+   ```
+   etwas tun
+   ```
+
+## Wenn es klemmt
+
+- Es klemmt.
+
+## Vertiefung
+
+- Handout M0, Folie 1
+"""
+
+
+def papier_pruefen(text: str) -> tuple[int, str]:
+    with tempfile.TemporaryDirectory() as d:
+        w = Path(d) / "praesentationen" / "papers"
+        w.mkdir(parents=True)
+        (Path(d) / "praesentationen" / "grafiken").mkdir()
+        f = w / "P-TEST.md"
+        f.write_text(text, encoding="utf-8")
+        r = subprocess.run([sys.executable, str(PAPIER_GATE), str(f)],
+                           capture_output=True, text=True)
+        return r.returncode, r.stdout + r.stderr
+
+
 def main():
     SPEZ = (
         "# Spez\n"
@@ -99,9 +150,21 @@ def main():
             ok += 1
         else:
             print(f"FEHLT: {name}")
+
+    # Papier-Gate: zwei Wartungsfälle vom 2026-10-06 festgenagelt.
+    code_m, aus_m = papier_pruefen(PAPIER_MERMAID)
+    for name, erfuellt in (
+        ("SP-05 zählt Mermaid-Zeilen nicht als Sätze", "SP-05" not in aus_m),
+        ("SP-06 meldet einen Mermaid-Block ohne .mmd-Quelle", "SP-06" in aus_m),
+    ):
+        if erfuellt:
+            ok += 1
+        else:
+            print(f"FEHLT: {name}")
+    gesamt = len(ERWARTUNGEN) + 2
     print("─" * 60)
-    print(f"{ok} von {len(ERWARTUNGEN)} Erwartungen erfüllt")
-    raise SystemExit(0 if ok == len(ERWARTUNGEN) else 1)
+    print(f"{ok} von {gesamt} Erwartungen erfüllt")
+    raise SystemExit(0 if ok == gesamt else 1)
 
 
 if __name__ == "__main__":

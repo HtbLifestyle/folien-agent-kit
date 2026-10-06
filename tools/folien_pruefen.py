@@ -157,7 +157,15 @@ def main():
     ap.add_argument("--ausloeser", default="lauf", help="hook | lauf — fürs Protokoll")
     a = ap.parse_args()
 
-    dateien = [Path(d) for d in a.dateien if Path(d).exists()]
+    # Spezifikationen und Prüfberichte liegen neben den Decks, sind aber keine.
+    # Der Hook überspringt sie schon; das CLI zieht hier nach, damit ein Glob
+    # über decks/*.md keine Fehlalarme erzeugt.
+    dateien = [
+        Path(d) for d in a.dateien
+        if Path(d).exists()
+        and not Path(d).name.startswith("SPEZIFIKATION")
+        and "pruefberichte" not in Path(d).as_posix()
+    ]
     befunde = [x for d in dateien for x in pruefen(d)]
 
     w = g.wurzel(dateien[0].resolve().parent if dateien else None)

@@ -14,6 +14,10 @@
   SP-04  Keine Fußnoten im Paper; Belege gehören in den Vertiefungs-Block
          als Handout-/Kapitel-Verweise.
   SP-05  `## Was du jetzt kannst` hat höchstens 3 Sätze.
+  SP-06  Jeder Mermaid-Block im Paper stimmt zeichengenau mit einer `.mmd`
+         unter `praesentationen/grafiken/` überein (ohne die `%%`-Kopfzeilen).
+         Eine Grafik ist EINE Quelle für Deck und Paper — wird die .mmd
+         geglättet, darf die Kopie im Paper nicht zurückbleiben.
 
 Exit 0 ohne Befund, 1 mit Befunden. Schreibt gates/papier-report.md.
 """
@@ -86,10 +90,58 @@ def pruefen(datei: Path) -> list[dict]:
 
     kann = re.search(r"## Was du jetzt kannst(.*?)(?=^## )", text, re.S | re.M)
     if kann:
-        saetze = [s for s in re.split(r"(?<=[.!?])\s+", kann.group(1).strip()) if s.strip()]
+        # Nur Fließtext zählen: Codezäune (auch Mermaid) tragen Punkte wie
+        # `-. label .-`, die sonst als Satzgrenze gelesen werden. Gemessen am
+        # Fehlalarm bei P-T13 (2026-10-06).
+        roh, zaun = [], False
+        for z in kann.group(1).splitlines():
+            if z.lstrip().startswith(("```", "~~~")):
+                zaun = not zaun
+                continue
+            if not zaun:
+                roh.append(z)
+        saetze = [s for s in re.split(r"(?<=[.!?])\s+", "\n".join(roh).strip()) if s.strip()]
         if len(saetze) > 3:
             befund("SP-05", f"`Was du jetzt kannst` hat {len(saetze)} Sätze (max 3)")
+
+    # SP-06: Mermaid im Paper gegen die .mmd-Quelle. Der Vergleich ignoriert
+    # Listen-Einrückung (im Paper steht der Block in einem Handgriff) und die
+    # %%-Kopfzeilen der Quelldatei, sonst nichts.
+    w = g.wurzel(datei.resolve().parent)
+    gdir = (w / "praesentationen" / "grafiken") if w is not None else None
+    if gdir is not None and gdir.is_dir():
+        quellen = {}
+        for mmd in sorted(gdir.glob("*.mmd")):
+            roh = [z for z in mmd.read_text(encoding="utf-8").splitlines()
+                   if not z.lstrip().startswith("%%")]
+            quellen[mmd.name] = _norm(roh)
+        for nr, block in enumerate(re.findall(r"```mermaid\n(.*?)```", text, re.S), 1):
+            kopie = _norm(block.splitlines())
+            if not kopie:
+                continue
+            if kopie in quellen.values():
+                continue
+            # Ähnlichste Quelle benennen, damit der Riss adressierbar ist.
+            import difflib
+            kt = "\n".join(kopie)
+            rang = sorted(
+                ((difflib.SequenceMatcher(None, kt, "\n".join(q)).ratio(), n)
+                 for n, q in quellen.items()),
+                reverse=True,
+            )
+            hinweis = (f"weicht von `{rang[0][1]}` ab ({rang[0][0]:.0%} gleich)"
+                       if rang and rang[0][0] > 0.5 else "zu keiner .mmd zeichengleich")
+            befund("SP-06", f"Mermaid-Block {nr} {hinweis} — Grafik ist eine Quelle")
     return b
+
+
+def _norm(zeilen: list[str]) -> list[str]:
+    """Leerzeilen weg, gemeinsame Einrückung weg — der Rest bleibt zeichengenau."""
+    z = [x.rstrip() for x in zeilen if x.strip()]
+    if not z:
+        return []
+    tiefe = min(len(x) - len(x.lstrip()) for x in z)
+    return [x[tiefe:] for x in z]
 
 
 def main():
