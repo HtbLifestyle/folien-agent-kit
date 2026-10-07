@@ -6,7 +6,7 @@
 Geprüft wird nur Mechanisches (P-04):
   F-01  Folienbudget: Kopfzeile `Budget: <n> Folien` wird gegen die Zahl
         der `## Folie`-Überschriften gehalten (Quellen-Folie zählt mit).
-  F-02  Sichtbarer Text je Folie ≤ 25 Wörter (Bullets und Freitext;
+  F-02  Sichtbarer Text je Folie ≤ 70 Wörter (Bullets und Freitext;
         nicht gezählt: Sprechnotiz:, Demo:, Jetzt du:, Form:, Skizze:,
         Handout:, Code-Zäune, Folientitel).
   F-03  Ein Gedanke je Folie: höchstens EIN zusammenhängender Bullet-Block.
@@ -112,8 +112,14 @@ def pruefen(datei: Path) -> list[dict]:
     for nr, minuten, inhalt in folien:
         zeilen = sichtbarer_text(inhalt)
         woerter = sum(len(WORT.findall(z)) for z in zeilen if z)
-        if woerter > 25:
-            befund("F-02", nr, f"Folie {nr}: {woerter} sichtbare Wörter (max 25)")
+        # 06.10.2026: Grenze von 25 auf 70 angehoben. Die 25 erzwangen
+        # Telegrammstil, und der Kunde hat ihn beim Gegenlesen nicht
+        # verstanden ("Ich will, dass jede Folie schlüssig ist"). Folien
+        # tragen jetzt vollständige, selbsterklärende Sätze; die Grenze
+        # fängt nur noch Textwände, nicht Verständlichkeit — die prüft
+        # ein Lese-Test.
+        if woerter > 70:
+            befund("F-02", nr, f"Folie {nr}: {woerter} sichtbare Wörter (max 70)")
 
         bloecke, offen = 0, False
         for z in zeilen:

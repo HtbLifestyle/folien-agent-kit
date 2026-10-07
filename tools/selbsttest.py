@@ -48,7 +48,7 @@ Budget: 1 Folien
 
 Regel: Erst die Regel, Beispiel vergessen.
 
-- Punkt eins mit vielen Wörtern, die hier nur stehen, damit die Grenze von fünfundzwanzig sichtbaren Wörtern sicher gerissen wird[^K01-001].
+- Punkt eins mit sehr vielen Wörtern, die hier ausschließlich deshalb stehen, damit die seit dem siebten Oktober geltende Grenze von siebzig sichtbaren Wörtern je Folie in diesem Negativtest sicher und reproduzierbar gerissen wird, denn eine Grenze, deren Verletzung der eigene Selbsttest nicht mehr erzeugen kann, ist keine Grenze, sondern nur noch eine Zeile Dokumentation, die niemand je wieder prüft, und genau diesen stillen Zustand soll dieser absichtlich viel zu lange Stichpunkt mit seinen deutlich über siebzig Wörtern dauerhaft verhindern[^K01-001].
 
 - Zweiter getrennter Block nach Leerzeile.
 
