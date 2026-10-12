@@ -1,2 +1,14 @@
+.DS_Store
 __pycache__/
 *.pyc
+
+# Niemals Projektinhalte ins Plugin-Repo.
+# Decks, Handout-Module, Tagesblaetter, Papers, Assets und Laufprotokolle
+# entstehen im jeweiligen Praesentationsprojekt und gehoeren dort in dessen
+# .gitignore. Die Pfade sind auf die Projektwurzel verankert, damit sie
+# nicht versehentlich gleichnamige Verzeichnisse unter skills/ ausschliessen.
+/praesentationen/
+/folien-log/
+/folien-eval/
+.claude/agent-memory/
+.claude/folien-log/
